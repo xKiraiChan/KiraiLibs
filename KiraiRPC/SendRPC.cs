@@ -31,10 +31,17 @@ namespace KiraiLibs
 
             if (handler == null)
             {
-                Logger.Debug("Canceling RPC because handler is null.");
+                Logger.Debug("Canceling RPC because handler is null");
                 return;
             }
 
+            if (moderators > 0)
+            {
+                Logger.Debug("Canceling RPC because a moderator is in your lobby");
+                return;
+            }
+
+            // my name is zephoria and i don't know what chronological order is
             handler.TriggerEvent(
             new VrcEvent
             {

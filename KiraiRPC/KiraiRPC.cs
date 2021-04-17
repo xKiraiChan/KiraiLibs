@@ -1,4 +1,5 @@
 ﻿using MelonLoader;
+using System;
 using System.Globalization;
 using System.Linq;
 using UnityEngine;
@@ -16,15 +17,20 @@ namespace KiraiLibs
         {
             Events.OnSceneLoad += OnLoad;
             Events.OnRPC += OnRPC;
+            Events.OnPlayerJoined += OnPlayerJoined;
+            Events.OnPlayerLeft += OnPlayerLeft;
         }
 
         private static VRC_EventHandler handler;
         private static object token;
+        private static int moderators = 0;
 
-        public static System.Action<RPCData> Callback = new System.Action<RPCData>((_) => { });
+        public static Action<RPCData> Callback = new Action<RPCData>((_) => { });
 
         private static void OnLoad(int index, string name)
         {
+            moderators = 0;
+
             if (index != -1) return;
             handler = null;
 
@@ -37,8 +43,9 @@ namespace KiraiLibs
         {
             int sleep = 0;
 
+            // look at me my name is zephoria and i know of a magic instance property
             while ((VRCPlayer.field_Internal_Static_VRCPlayer_0 == null ||
-                (handler = Object.FindObjectOfType<VRC_EventHandler>()) == null) &&
+                (handler = UnityEngine.Object.FindObjectOfType<VRC_EventHandler>()) == null) &&
                 sleep < 60)
             {
                 sleep++;
@@ -123,6 +130,18 @@ namespace KiraiLibs
                     data.id = (int)RPCEventIDs.OnInit;
                     break;
             }
-        } 
+        }
+
+        private static void OnPlayerJoined(Player player)
+        {
+            if (player.field_Private_APIUser_0.hasModerationPowers)
+                moderators++;
+        }
+
+        private static void OnPlayerLeft(Player player)
+        {
+            if (player.field_Private_APIUser_0.hasModerationPowers)
+                moderators--;
+        }
     }
 }
